@@ -1,0 +1,80 @@
+---
+title: "Automatikus kötvényesítés napi riport"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    theme: spacelab
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+library(stringr)
+library(ggiraph)
+
+# Import helper functions
+source(here::here("R", "data_manipulation.R"), local = TRUE)
+```
+
+Sikerarány {.storyboard}
+=========================================
+
+### Lakás központi menesztés tejesítménye az aktuális hónap figyelembevételével 
+
+```{r, fig.width=10}
+home_main <- read.csv(here::here("Data", "home_main.csv"))
+
+plot_success(home_main, use_facet = FALSE, fig_size = 10)
+```
+
+***
+Az automatikus kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+
+- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
+- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
+- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
+
+### Ezen az ábrán automatikus kötvényesítés sikerességét **termékcsoportonként** értékeljük ki több mutató mentén
+
+```{r, fig.width=12, fig.height=6}
+```
+
+***
+Az automatiks kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+
+- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
+- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
+- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
+
+### Ezen az ábrán automatikus kötvényesítés sikerességét **termékcsoportonként** és **kötési módonként** értékeljük ki több mutató mentén
+
+```{r, fig.width=12, fig.height=6}
+```
+
+***
+Az automatiks kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+
+- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
+- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
+- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
+
+### Ezen az ábrán automatikus kötvényesítés sikerességét a **KGFB** termékcsoporton és annak **kötési okaiként** értékeljük ki több mutató mentén
+
+```{r, fig.width=12, fig.height=6}
+
+```
+
+***
+Az automatiks kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+
+- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
+- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
+- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
+
+
+
