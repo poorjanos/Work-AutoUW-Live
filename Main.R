@@ -14,7 +14,7 @@ dir.create(here::here("SQL"), showWarnings = FALSE)
 
 # Create constants
 # Set threshold for error relative frequency
-freq_lim = 0.02
+freq_lim = 0.01
 
 #########################################################################################
 # Data Extraction #######################################################################
@@ -204,72 +204,28 @@ autouw_error_freq <-  autouw_error_freq %>%
                             TRUE ~ .$MODTYP)) %>%
   left_join(autouw_dict, by = c("HIBAAZON"))
 
-autouw_error_freq_last3 <-
-  autouw_error_freq %>% filter(ymd_hms(IDOSZAK) >= floor_date(Sys.Date(), unit = "month") - months(3))
-
-autouw_error_freq_last3$IDOSZAK <-
-  paste0(substr(autouw_error_freq_last3$IDOSZAK, 1, 4),
-         "/",
-         substr((autouw_error_freq_last3$IDOSZAK), 6, 7))
-
 autouw_error_freq$IDOSZAK <-
-  paste0(substr(autouw_error_freq$IDOSZAK, 1, 4), "/", substr((autouw_error_freq$IDOSZAK), 6, 7))
+  paste0(substr(autouw_error_freq$IDOSZAK, 1, 4),
+         "/",
+         substr((autouw_error_freq$IDOSZAK), 6, 7))
 
 
-# Freq of errors for whole dataset
-freq <- autouw_error_freq_last3 %>%
-  group_by(HIBAAZON, HIBA) %>%
+# Freq of errors per Home product
+home_prod_error_freq <- autouw_error_freq %>%
+  filter(MODTYP == "Lakás" & MODKOD %in% c("21968", "21972")) %>% 
+  group_by(MODKOD, HIBAAZON, HIBA) %>%
   summarize(TOTAL = n()) %>%
+  arrange(MODKOD, desc(TOTAL)) %>%
   ungroup() %>%
-  arrange(desc(TOTAL)) %>%
-  mutate(GYAKORISAG = TOTAL / sum(TOTAL),
-         GYAK_KUM = cumsum(GYAKORISAG)) %>%
-  filter(GYAKORISAG >= freq_lim)
-
-
-# Save for dashboard output
-write.csv(freq,
-          here::here("Data", "p3_error_freq.csv"),
-          row.names = FALSE)
-
-
-# Freq of errors per prod line
-freq_prod <- autouw_error_freq_last3 %>%
-  group_by(MODTYP, HIBAAZON, HIBA) %>%
-  summarize(TOTAL = n()) %>%
-  arrange(MODTYP, desc(TOTAL)) %>%
-  ungroup() %>%
-  group_by(MODTYP) %>%
+  group_by(MODKOD) %>%
   mutate(GYAKORISAG = TOTAL / sum(TOTAL)) %>%
   filter(GYAKORISAG >= freq_lim)
 
 
 # Save for dashboard output
-write.csv(freq_prod,
-          here::here("Data", "p3_error_freq_prod.csv"),
+write.csv(home_prod_error_freq,
+          here::here("Data", "home_prod_error_freq.csv"),
           row.names = FALSE)
-
-
-# Freq time series for most common errors (of last 3 months) per prod line
-# Most common errors extracted from last 3 months then track them backwards in time
-most_common <- unique(freq_prod$HIBAAZON)
-autouw_error_freq_mc <- autouw_error_freq %>%
-  filter(HIBAAZON %in% most_common)
-
-freq_prod_mc <- autouw_error_freq_mc %>%
-  group_by(IDOSZAK, MODTYP, HIBAAZON, HIBA) %>%
-  summarize(TOTAL = n()) %>%
-  arrange(IDOSZAK, MODTYP, desc(TOTAL)) %>%
-  ungroup() %>%
-  group_by(IDOSZAK, MODTYP) %>%
-  mutate(GYAKORISAG = TOTAL / sum(TOTAL))
-
-
-# Save for dashboard output
-write.csv(freq_prod_mc,
-          here::here("Data", "p3_error_freq_prod_mc.csv"),
-          row.names = FALSE)
-
 
 
 #########################################################################################
@@ -285,154 +241,25 @@ autouw_error_pattern <-  autouw_error_pattern %>%
   mutate(MODTYP = case_when(.$MODTYP == "Vagyon" ~ "Lakás",
                             TRUE ~ .$MODTYP))
 
-autouw_error_pattern_last3 <-
-  autouw_error_pattern %>% filter(ymd_hms(IDOSZAK) >= floor_date(Sys.Date(), unit = "month") - months(3))
-
 autouw_error_pattern$IDOSZAK <-
   paste0(substr(autouw_error_pattern$IDOSZAK, 1, 4), "/", substr((autouw_error_pattern$IDOSZAK), 6, 7))
 
-autouw_error_pattern_last3$IDOSZAK <-
-  paste0(substr(autouw_error_pattern_last3$IDOSZAK, 1, 4),
-         "/",
-         substr((autouw_error_pattern_last3$IDOSZAK), 6, 7))
 
-
-# Freq of patterns for whole dataset
-freq_pattern <- autouw_error_pattern_last3 %>%
-  group_by(HIBA_MINTA) %>%
+# Freq of patterns per Home prods
+home_freq_pattern_prod <- autouw_error_pattern %>%
+  filter(MODTYP == "Lakás" & MODKOD %in% c("21968", "21972")) %>% 
+  group_by(MODKOD, HIBA_MINTA) %>%
   summarize(TOTAL = n()) %>%
+  arrange(MODKOD, desc(TOTAL)) %>%
   ungroup() %>%
-  arrange(desc(TOTAL)) %>%
-  mutate(GYAKORISAG = TOTAL / sum(TOTAL),
-         GYAK_KUM = cumsum(GYAKORISAG)) %>%
-  filter(GYAKORISAG >= freq_lim)
-
-
-# Save for dashboard output
-write.csv(freq_pattern,
-          here::here("Data", "p4_error_freq_pattern.csv"),
-          row.names = FALSE)
-
-
-# Freq of patterns per prod line
-freq_pattern_prod <- autouw_error_pattern_last3 %>%
-  group_by(MODTYP, HIBA_MINTA) %>%
-  summarize(TOTAL = n()) %>%
-  arrange(MODTYP, desc(TOTAL)) %>%
-  ungroup() %>%
-  group_by(MODTYP) %>%
+  group_by(MODKOD) %>%
   mutate(GYAKORISAG = TOTAL / sum(TOTAL)) %>%
   filter(GYAKORISAG >= freq_lim)
 
 
 # Save for dashboard output
 write.csv(
-  freq_pattern_prod,
-  here::here("Data", "p4_error_freq_pattern_prod.csv"),
+  home_freq_pattern_prod,
+  here::here("Data", "home_prod_freq_pattern.csv"),
   row.names = FALSE
 )
-
-
-# Freq time series for most common patterns per prod line
-most_common_pattern <- unique(freq_pattern_prod$HIBA_MINTA)
-autouw_error_pattern_mc <- autouw_error_pattern %>%
-  filter(HIBA_MINTA %in% most_common_pattern)
-
-error_prod_mc <- autouw_error_pattern_mc %>%
-  group_by(IDOSZAK, MODTYP, HIBA_MINTA) %>%
-  summarize(TOTAL = n()) %>%
-  arrange(IDOSZAK, MODTYP, desc(TOTAL)) %>%
-  ungroup() %>%
-  group_by(IDOSZAK, MODTYP) %>%
-  mutate(GYAKORISAG = TOTAL / sum(TOTAL))
-
-
-# Save for dashboard output
-write.csv(
-  error_prod_mc,
-  here::here("Data", "p4_error_freq_pattern_prod_mc.csv"),
-  row.names = FALSE
-)
-
-
-
-#########################################################################################
-# Analyze Error Pattern Costs  ##########################################################
-#########################################################################################
-
-# Transformations
-autouw_cost <-
-  autouw_cost[!is.na(autouw_cost$MODTYP),]
-
-autouw_cost <-  autouw_cost %>%
-  mutate(MODTYP = case_when(.$MODTYP == "Vagyon" ~ "Lakás",
-                            TRUE ~ .$MODTYP))
-
-
-# Compute monthly total cost -----------------------------------------------------------
-cost_monthly <- autouw_cost %>%
-  group_by(IDOSZAK) %>%
-  summarize(HIBA_IDO = sum(IDO_PERC)) %>%
-  ungroup() %>%
-  left_join(num_wdays, by = c("IDOSZAK")) %>%
-  mutate(FTE = HIBA_IDO / 60 / 7 / MNAP,
-         IDOSZAK = paste0(substr(IDOSZAK, 1, 4), "/", substr((IDOSZAK), 6, 7))) %>%
-  left_join(auw_main[auw_main$MUTATO == "SIKER_PER_TELJES",], by = c("IDOSZAK")) %>%
-  rename(SIKER_PER_TELJES = PCT) %>%
-  select(IDOSZAK, FTE, SIKER_PER_TELJES)
-
-
-# Save for dashboard output
-write.csv(cost_monthly,
-          here::here("Data", "p1_cost_monthly.csv"),
-          row.names = FALSE)
-
-
-# Compute monthly total cost per prod line ----------------------------------------------
-cost_prod_monthly <- autouw_cost %>%
-  group_by(IDOSZAK, MODTYP) %>%
-  summarize(HIBA_IDO = sum(IDO_PERC)) %>%
-  ungroup() %>%
-  left_join(num_wdays, by = c("IDOSZAK")) %>%
-  mutate(FTE = HIBA_IDO / 60 / 7 / MNAP,
-         IDOSZAK = paste0(substr(IDOSZAK, 1, 4), "/", substr((IDOSZAK), 6, 7))) %>%
-  left_join(auw_prod[auw_prod$MUTATO == "SIKER_PER_TELJES",], by = c("IDOSZAK", "MODTYP")) %>%
-  rename(SIKER_PER_TELJES = PCT) %>%
-  select(IDOSZAK, MODTYP, FTE, SIKER_PER_TELJES)
-
-
-# Save for dashboard output
-write.csv(cost_prod_monthly,
-          here::here("Data", "p5_cost_prod_monthly.csv"),
-          row.names = FALSE)
-
-
-
-# Compute monthly total cost per error pattern ------------------------------------------
-# NOTE: normalized FTE computed for last 3 months: must make sure both FTE and N are computed
-# for 3 months period
-wdays_last3 <-
-  num_wdays %>% filter(
-    ymd_hms(IDOSZAK) >= floor_date(Sys.Date(), unit = "month") - months(3) &
-      ymd_hms(IDOSZAK) < floor_date(Sys.Date(), unit = "month")
-  ) %>%
-  select(MNAP) %>% sum
-
-fte_last3 <- autouw_cost %>%
-  filter(ymd_hms(IDOSZAK) >= floor_date(Sys.Date(), unit = "month") - months(3)) %>%
-  group_by(MODTYP, HIBA_MINTA) %>%
-  summarize(HIBA_IDO = sum(IDO_PERC)) %>%
-  ungroup() %>%
-  mutate(FTE = HIBA_IDO / 60 / 7 / wdays_last3)
-
-cost_pattern_last3 <-
-  freq_pattern_prod %>% left_join(fte_last3, by = c("MODTYP", "HIBA_MINTA")) %>%
-  mutate(FAJL_FTE = FTE / TOTAL * 1000) %>%
-  select(MODTYP, HIBA_MINTA, GYAKORISAG, FTE, FAJL_FTE) %>%
-  arrange(MODTYP, desc(FTE))
-
-
-# Save for dashboard output
-write.csv(cost_pattern_last3,
-          here::here("Data", "p5_cost_pattern_last3.csv"),
-          row.names = FALSE)

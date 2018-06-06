@@ -1,7 +1,8 @@
 ---
-title: "Automatikus kötvényesítés napi riport"
+title: "Lakás automatikus kötvényesítés napi riport BETA"
 output: 
   flexdashboard::flex_dashboard:
+    storyboard: true
     orientation: columns
     vertical_layout: fill
     theme: spacelab
@@ -21,10 +22,9 @@ library(ggiraph)
 source(here::here("R", "data_manipulation.R"), local = TRUE)
 ```
 
-Sikerarány {.storyboard}
-=========================================
 
-### Lakás központi menesztés tejesítménye az aktuális hónap figyelembevételével 
+
+### Lakás központi menesztés tejesítménye 2018 június hónap eredményeivel 
 
 ```{r, fig.width=10}
 home_main <- read.csv(here::here("Data", "home_main.csv"))
@@ -33,48 +33,65 @@ plot_success(home_main, use_facet = FALSE, fig_size = 10)
 ```
 
 ***
-Az automatikus kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+Jelmagyarázat:
 
 - **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
 - **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
 - **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
 
-### Ezen az ábrán automatikus kötvényesítés sikerességét **termékcsoportonként** értékeljük ki több mutató mentén
+### LSZB és OKÉ termékek sikerarányai 2018 június
 
 ```{r, fig.width=12, fig.height=6}
+home_prod_main <- read.csv(here::here("Data", "home_prod_main.csv")) %>% 
+  mutate(MUTATO = factor(MUTATO),
+         MODKOD = factor(MODKOD))
+
+ggplot(home_prod_main, aes(x = MUTATO, y = PCT, fill = MODKOD)) + 
+      geom_bar(position=position_dodge(), stat = "identity") +
+      geom_text(aes(label=paste0(round(PCT * 100, 2), "%")), position=position_dodge(width=0.9), vjust=-0.25)
+      scale_y_continuous(label = percent)
 ```
 
 ***
-Az automatiks kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+OKÉ esetében magasabb kísérelt arány, de alacsonyabb siker
 
-- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
-- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
-- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
-
-### Ezen az ábrán automatikus kötvényesítés sikerességét **termékcsoportonként** és **kötési módonként** értékeljük ki több mutató mentén
+### LSZB és OKÉ termékek hibaokainak összehasonlítás 2018 június
 
 ```{r, fig.width=12, fig.height=6}
-```
+home_prod_error_freq <- read.csv(here::here("Data", "home_prod_error_freq.csv"))
 
-***
-Az automatiks kötvényesítés teljesítményét három mutató alapján értékelhetjük:
-
-- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
-- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
-- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
-
-### Ezen az ábrán automatikus kötvényesítés sikerességét a **KGFB** termékcsoporton és annak **kötési okaiként** értékeljük ki több mutató mentén
-
-```{r, fig.width=12, fig.height=6}
+plot_error_freq(
+  home_prod_error_freq,
+  use_facet = TRUE,
+  facet_two = "MODKOD",
+  fig_size = 10,
+  x_label_size = 8,
+  y_label_size = 12
+)
 
 ```
 
 ***
-Az automatiks kötvényesítés teljesítményét három mutató alapján értékelhetjük:
+OKÉ esetében új típusú hibaokok jelentek meg
 
-- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
-- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
-- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
+### LSZB és OKÉ termékek hibamintázatainak összehasonlítás 2018 június
+
+```{r, fig.width=12, fig.height=6}
+home_freq_pattern_prod <- read.csv(here::here("Data", "home_prod_freq_pattern.csv"))
+
+plot_error_pattern_freq(
+  home_freq_pattern_prod,
+  use_facet = TRUE,
+  facet_two = "MODKOD",
+  fig_width = 12,
+  fig_height = 6,
+  x_label_size = 8,
+  y_label_size = 6
+)
+```
+
+***
+OKÉ estében sincsenek összetett hibamintázatok: egyedi problémákon hiúsul meg az automatikus menesztés
 
 
 

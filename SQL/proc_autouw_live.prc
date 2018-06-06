@@ -391,9 +391,9 @@ BEGIN
 
    
    
-EXECUTE IMMEDIATE 'TRUNCATE TABLE  t_autouw_dict';
+EXECUTE IMMEDIATE 'TRUNCATE TABLE  t_autouw_dict_live';
 
-   INSERT INTO t_autouw_dict (hibaazon, hiba)
+   INSERT INTO t_autouw_dict_live (hibaazon, hiba)
       SELECT   DISTINCT
                FIRST_VALUE(hibaazon)
                   OVER (PARTITION BY hibaazon
@@ -750,7 +750,7 @@ INSERT INTO t_kpm_LIVE_pattern (vonalkod,
                                                                    a.szerzazon,
                                                                    f_hibaszam)
                                                        c,
-                                                       t_autouw_dict d
+                                                       t_autouw_dict_live d
                                                WHERE   c.hibaazon =
                                                           d.hibaazon))));
 COMMIT;
