@@ -48,12 +48,10 @@ home_prod_main <- read.csv(here::here("Data", "home_prod_main.csv")) %>%
 
 ggplot(home_prod_main, aes(x = MUTATO, y = PCT, fill = MODKOD)) + 
       geom_bar(position=position_dodge(), stat = "identity") +
-      geom_text(aes(label=paste0(round(PCT * 100, 2), "%")), position=position_dodge(width=0.9), vjust=-0.25)
+      geom_text(aes(label=paste0(round(PCT * 100, 2), "%")), position=position_dodge(width=0.9), vjust=-0.25) +
       scale_y_continuous(label = percent)
 ```
 
-***
-OKÉ esetében magasabb kísérelt arány, de alacsonyabb siker
 
 ### LSZB és OKÉ termékek hibaokainak összehasonlítás 2018 június
 
@@ -71,27 +69,22 @@ plot_error_freq(
 
 ```
 
-***
-OKÉ esetében új típusú hibaokok jelentek meg
 
 ### LSZB és OKÉ termékek hibamintázatainak összehasonlítás 2018 június
 
-```{r, fig.width=12, fig.height=6}
+```{r, fig.width=10}
 home_freq_pattern_prod <- read.csv(here::here("Data", "home_prod_freq_pattern.csv"))
 
 plot_error_pattern_freq(
   home_freq_pattern_prod,
   use_facet = TRUE,
   facet_two = "MODKOD",
-  fig_width = 12,
+  fig_width = 16,
   fig_height = 6,
   x_label_size = 8,
-  y_label_size = 6
+  y_label_size = 7.5
 )
 ```
-
-***
-OKÉ estében sincsenek összetett hibamintázatok: egyedi problémákon hiúsul meg az automatikus menesztés
 
 
 
