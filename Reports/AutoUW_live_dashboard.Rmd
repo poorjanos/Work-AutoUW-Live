@@ -49,7 +49,11 @@ home_prod_main <- read.csv(here::here("Data", "home_prod_main.csv")) %>%
 ggplot(home_prod_main, aes(x = MUTATO, y = PCT, fill = MODKOD)) + 
       geom_bar(position=position_dodge(), stat = "identity") +
       geom_text(aes(label=paste0(round(PCT * 100, 2), "%")), position=position_dodge(width=0.9), vjust=-0.25) +
-      scale_y_continuous(label = percent)
+      scale_y_continuous(label = percent) +
+  labs(
+        y = "Százlékos arány [%]",
+        x = "Mutató"
+      )
 ```
 
 
