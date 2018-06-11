@@ -22,7 +22,8 @@ library(ggiraph)
 source(here::here("R", "data_manipulation.R"), local = TRUE)
 ```
 
-
+Lakás {.storyboard data-navmenu="Tartalom"}
+=========================================
 
 ### Lakás központi menesztés tejesítménye 2018 június hónap eredményeivel 
 
@@ -90,5 +91,21 @@ plot_error_pattern_freq(
 )
 ```
 
+KGFB {.storyboard data-navmenu="Tartalom"}
+=========================================
+### KGFB központi menesztés tejesítménye 2018 június hónap eredményeivel 
+
+```{r, fig.width=10}
+tpml_main <- read.csv(here::here("Data", "tpml_main.csv"))
+
+plot_success(tpml_main, use_facet = FALSE, fig_size = 10)
+```
+
+***
+Jelmagyarázat:
+
+- **KISERELT**: a kísérlet, próbálkozás aránya, azaz az állomány mekkora hányadán futtott az adott idõszakban automatikus menesztés
+- **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
+- **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
 
 

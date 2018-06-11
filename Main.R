@@ -142,6 +142,66 @@ write.csv(home_main,
           row.names = FALSE)
 
 
+
+# Compute autoUW main KPIs for TPML---------------------------------------------------
+# Compute attempt rate
+tpml_attempt <-  autouw_main %>%
+  filter(MODTYP == "GFB") %>%
+  filter(ymd_hms(ERKDAT) < Sys.Date() - 5) %>% 
+  mutate(ATTEMPT = case_when(.$KPM %in% c("Sikeres", "Sikertelen") ~ 'I',
+                             TRUE ~ 'N')) %>%
+  group_by(IDOSZAK, ATTEMPT) %>%
+  summarise (TOTAL = n()) %>%
+  mutate(KISERELT = TOTAL / sum(TOTAL)) %>%
+  filter(ATTEMPT == "I") %>%
+  select(IDOSZAK, KISERELT)
+
+
+# Compute success rate within total
+tpml_success_total <-  autouw_main %>%
+  filter(MODTYP == "GFB") %>% 
+  filter(ymd_hms(ERKDAT) < Sys.Date() - 5) %>% 
+  group_by(IDOSZAK, KPM) %>%
+  summarise (TOTAL = n()) %>%
+  mutate(SIKER_PER_TELJES = TOTAL / sum(TOTAL)) %>%
+  filter(KPM == "Sikeres") %>%
+  select(IDOSZAK, SIKER_PER_TELJES)
+
+
+# Compute success rate within attempted
+tpml_success_attempt <-  autouw_main %>%
+  filter(MODTYP == "GFB") %>% 
+  filter(ymd_hms(ERKDAT) < Sys.Date() - 5) %>% 
+  filter(KPM != "Nincs") %>%
+  group_by(IDOSZAK, KPM) %>%
+  summarise (TOTAL = n()) %>%
+  mutate(SIKER_PER_KISERELT = TOTAL / sum(TOTAL)) %>%
+  filter(KPM == "Sikeres") %>%
+  select(IDOSZAK, SIKER_PER_KISERELT)
+
+
+# Merge KPI results
+tpml_main <- tpml_attempt %>%
+  left_join(tpml_success_attempt, by = "IDOSZAK") %>%
+  left_join(tpml_success_total, by = "IDOSZAK") %>%
+  gather(MUTATO, PCT,-IDOSZAK) %>% 
+  ungroup()
+
+
+# Get previous months
+tpml_hist <- read.csv(here::here("Data", "p2_auw_prod.csv"), stringsAsFactors = FALSE) %>% 
+                filter(MODTYP == "GFB") %>% 
+                select(-MODTYP)
+
+tpml_main <- rbind(tpml_hist, tpml_main) %>% 
+                arrange(MUTATO, IDOSZAK)
+
+# Save for dashboard output
+write.csv(tpml_main,
+          here::here("Data", "tpml_main.csv"),
+          row.names = FALSE)
+
+
 # Compute autoUW main KPIs for Home per Product -----------------------------------------
 # Compute attempt rate
 home_prod_attempt <-  autouw_main %>%
