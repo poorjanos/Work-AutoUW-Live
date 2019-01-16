@@ -40,7 +40,7 @@ Jelmagyarázat:
 - **SIKER_PER_KISERELT**: sikerarány azon állományon, melyet az automatika megkísérelt elmeneszteni (magyarul, ahol futott központi menesztés)
 - **SIKER_PER_TELJES**: sikerarány a teljes állományon, tehát azt a halmazt is számításba véve, ahol nem fut központi menesztés
 
-### LSZB és OKÉ termékek sikerarányai 2018 június
+### LSZB és OKÉ termékek sikerarányai 2019 január
 
 ```{r, fig.width=12, fig.height=6}
 home_prod_main <- read.csv(here::here("Data", "home_prod_main.csv")) %>% 
@@ -58,7 +58,7 @@ ggplot(home_prod_main, aes(x = MUTATO, y = PCT, fill = MODKOD)) +
 ```
 
 
-### LSZB és OKÉ termékek hibaokainak összehasonlítás 2018 június
+### LSZB és OKÉ termékek hibaokainak összehasonlítás 2019 január
 
 ```{r, fig.width=12, fig.height=6}
 home_prod_error_freq <- read.csv(here::here("Data", "home_prod_error_freq.csv"))
@@ -75,7 +75,7 @@ plot_error_freq(
 ```
 
 
-### LSZB és OKÉ termékek hibamintázatainak összehasonlítás 2018 június
+### LSZB és OKÉ termékek hibamintázatainak összehasonlítás  2019 január
 
 ```{r, fig.width=10}
 home_freq_pattern_prod <- read.csv(here::here("Data", "home_prod_freq_pattern.csv"))
@@ -93,7 +93,7 @@ plot_error_pattern_freq(
 
 KGFB {.storyboard data-navmenu="Tartalom"}
 =========================================
-### KGFB központi menesztés tejesítménye 2018 június hónap eredményeivel 
+### KGFB központi menesztés tejesítménye  2019 január hónap eredményeivel 
 
 ```{r, fig.width=10}
 tpml_main <- read.csv(here::here("Data", "tpml_main.csv"))
